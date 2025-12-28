@@ -1,12 +1,11 @@
 import streamlit as st
 from openai import OpenAI
 
+# 1. Setup (Sicher über Streamlit Secrets)
+# WICHTIG: Kein Key im Code! Der Key muss in den Streamlit Cloud 'Secrets' stehen.
 api_key = st.secrets["OPENAI_API_KEY"]
-
 client = OpenAI(api_key=api_key)
 
-# App-Konfiguration mit dem neuen Namen
-st.set_page_config(page_title="Kreol", page_icon="🇲🇺")
 st.title("🇲🇺 Deutsch ➔ Kreol")
 
 # Speicher für die Ergebnisse (Session State)
@@ -28,20 +27,14 @@ show_vulgar = cols[4].checkbox("🔴 Vul.", value=True)
 
 # 4. Übersetzungsprozess
 if source_text and source_text != st.session_state.last_text:
-    with st.spinner('GPT-5.2 generiert Übersetzungen...'):
+    with st.spinner('Übersetzungen werden generiert...'):
         system_msg = """Du bist ein mauritischer Sprachexperte. 
-        Deine Aufgabe: Übersetze den deutschen Text in Mauritisches Kreol in 5 Ebenen.
+        Übersetze den deutschen Text in Mauritisches Kreol in 5 Ebenen.
         Format pro Zeile: LABEL: [Kreolische Übersetzung] | [Deutsche Rückübersetzung]
-        
-        BEISPIEL:
-        GEHOBEN: Mo swet ou enn rapid gerizon | Ich wünsche Ihnen eine schnelle Genesung
-        POPULÄR: Gerizon vit vit | Schnelle Heilung (Kurzform)
-        
-        Benutze EXAKT diese 5 Labels: GEHOBEN, NEUTRAL, POPULÄR, UMGANG, VULGÄR.
-        Schreibe in der Übersetzung (vor dem |) NIEMALS Deutsch, sondern immer nur Kreol!"""
+        Labels: GEHOBEN, NEUTRAL, POPULÄR, UMGANG, VULGÄR."""
 
         response = client.chat.completions.create(
-            model="gpt-5.2",
+            model="gpt-4o", # gpt-4o ist aktuell am stabilsten
             messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": source_text}]
         )
         
@@ -57,7 +50,7 @@ if source_text and source_text != st.session_state.last_text:
         st.session_state.data = new_data
         st.session_state.last_text = source_text
 
-# 5. Anzeige (Eingeklappt per Default)
+# 5. Anzeige
 if st.session_state.data:
     display_logic = [
         (show_formal, "GEHOBEN", "🔵"),
@@ -75,40 +68,26 @@ if st.session_state.data:
                 entry = st.session_state.data[actual_key]
                 with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
                     
-                    # 1. Rückübersetzung & Erklärung (Jetzt fest im Expander)
+                    # Rückübersetzung
                     st.write(f"**Rückübersetzung:** _{entry['b']}_")
+                    st.info(f"Dies ist die {key.lower()}e Form im Mauritischen.")
                     
-                    # Kleiner Zusatz-Text für die Nuance
-                    st.info(f"Dies ist die {key.lower()}e Form der Ausdrucksweise im Mauritischen.")
-                    
-                    # 2. Audio Button
+                    # Audio Button
                     if st.button(f"🔊 Anhören ({key})", key=f"btn_{key}"):
                         with st.spinner("Lade Audio..."):
-                            audio_input = entry['t'] if entry['t'].endswith(('.', '!', '?')) else entry['t'] + "."
                             audio_res = client.audio.speech.create(
                                 model="tts-1",
                                 voice="nova",
-                                input=audio_input
+                                input=entry['t']
                             )
                             st.audio(audio_res.content)
-
-# 6. Rückfrage-Bereich (Hier bleibt alles wie gehabt)
-st.markdown("---")
-query = st.text_input("💬 Rückfrage an den Lehrer:")
-if query and source_text:
-    res = client.chat.completions.create(
-        model="gpt-5.2",
-        messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
-                  {"role": "user", "content": f"Im Kontext von '{source_text}' frage ich mich: {query}"}]
-    )
-    st.success(res.choices[0].message.content)
 
 # 6. Rückfrage-Bereich
 st.markdown("---")
 query = st.text_input("💬 Rückfrage an den Lehrer:")
 if query and source_text:
     res = client.chat.completions.create(
-        model="gpt-5.2",
+        model="gpt-4o",
         messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
                   {"role": "user", "content": f"Im Kontext von '{source_text}' frage ich mich: {query}"}]
     )
