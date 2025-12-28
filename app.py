@@ -1,12 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 
-# 1. Setup (Lokal & Cloud sicher)
-try:
-    api_key = st.secrets["OPENAI_API_KEY"]
-except:
-    # Dein lokaler Schlüssel für den Test am Mac
-    api_key = "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"
+api_key = st.secrets["OPENAI_API_KEY"]
 
 client = OpenAI(api_key=api_key)
 
