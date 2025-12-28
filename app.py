@@ -69,26 +69,39 @@ if st.session_state.data:
 
     for active, key, emoji in display_logic:
         if active:
-            # Suche den Key flexibel (z.B. falls die KI 'UMGANGSSPRACHLICH' schreibt)
             actual_key = next((k for k in st.session_state.data if k.startswith(key)), None)
             
             if actual_key:
                 entry = st.session_state.data[actual_key]
                 with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
-                    # Rückübersetzung kursiv anzeigen
-                    st.write(f"_{entry['b']}_")
                     
-                    # Audio Button
-                    if st.button(f"🔊 Anhören", key=f"btn_{key}"):
-                        # Kleiner Trick für die Betonung am Satzende
-                        audio_input = entry['t'] if entry['t'].endswith(('.', '!', '?')) else entry['t'] + "."
-                        
-                        audio_res = client.audio.speech.create(
-                            model="tts-1",
-                            voice="nova",
-                            input=audio_input
-                        )
-                        st.audio(audio_res.content)
+                    # 1. Rückübersetzung & Erklärung (Jetzt fest im Expander)
+                    st.write(f"**Rückübersetzung:** _{entry['b']}_")
+                    
+                    # Kleiner Zusatz-Text für die Nuance
+                    st.info(f"Dies ist die {key.lower()}e Form der Ausdrucksweise im Mauritischen.")
+                    
+                    # 2. Audio Button
+                    if st.button(f"🔊 Anhören ({key})", key=f"btn_{key}"):
+                        with st.spinner("Lade Audio..."):
+                            audio_input = entry['t'] if entry['t'].endswith(('.', '!', '?')) else entry['t'] + "."
+                            audio_res = client.audio.speech.create(
+                                model="tts-1",
+                                voice="nova",
+                                input=audio_input
+                            )
+                            st.audio(audio_res.content)
+
+# 6. Rückfrage-Bereich (Hier bleibt alles wie gehabt)
+st.markdown("---")
+query = st.text_input("💬 Rückfrage an den Lehrer:")
+if query and source_text:
+    res = client.chat.completions.create(
+        model="gpt-5.2",
+        messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
+                  {"role": "user", "content": f"Im Kontext von '{source_text}' frage ich mich: {query}"}]
+    )
+    st.success(res.choices[0].message.content)
 
 # 6. Rückfrage-Bereich
 st.markdown("---")
