@@ -4,11 +4,13 @@ import requests
 
 # 1. Konfiguration
 # Dieser Link greift jetzt direkt auf deine hochgeladene Datei zu
+# Wir hängen ein "?v=1" an, um den Cache des Handys zu zwingen, das Bild neu zu laden
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
+icon_url = f"{logo_url}?v=1"
 
 st.set_page_config(
     page_title="DodoLingo", 
-    page_icon=logo_url, 
+    page_icon=icon_url, 
     layout="centered"
 )
 
