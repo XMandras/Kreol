@@ -2,13 +2,12 @@ import streamlit as st
 from openai import OpenAI
 import requests
 
-# 1. Konfiguration
-# Falls dein Bild in GitHub "Dodologo.png" heißt, muss es hier exakt so stehen:
+# 1. Konfiguration für das Handy-Icon (Favicon/Touch-Icon)
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
 
 st.set_page_config(
     page_title="DodoLingo", 
-    page_icon=logo_url, 
+    page_icon=logo_url, # Dies ist die wichtigste Zeile für das Handy-Icon!
     layout="centered"
 )
 
@@ -16,26 +15,22 @@ st.set_page_config(
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# 2. Logo-Anzeige & Titel-Layout
+# 2. Titel & Logo-Layout
 col1, col2 = st.columns([1, 4])
-
 with col1:
-    # Hier wird PRIORISIERT dein eigenes Logo geladen
     try:
+        # Prüfen, ob das Bild erreichbar ist
         if requests.head(logo_url).status_code == 200:
-            st.image(logo_url, width=85) # Dein Dodologo.png
+            st.image(logo_url, width=85)
         else:
-            # Das ist nur der Ersatz, falls dein Bild fehlt
             st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=85)
     except:
-        # Das ist der absolute Notfall-Plan (Emoji)
-        st.write("## 🦤") 
+        st.write("## 🦤")
 
 with col2:
-    # Hier steht jetzt nur noch der Name ohne Flaggen-Emoji
     st.title("DodoLingo")
     st.markdown("*Deutsch ➔ Kreol Lehrer*")
-
+    
 # Speicher für Ergebnisse & Reset-Funktion
 if 'data' not in st.session_state:
     st.session_state.data = None
