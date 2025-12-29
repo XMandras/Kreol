@@ -1,10 +1,10 @@
 import streamlit as st
 from openai import OpenAI
 
-# Pfad zu deinem Logo in GitHub (angepasst auf dein Repo)
+# 1. Konfiguration (PRÜFE DIESEN LINK!)
+# Er muss exakt so aufgebaut sein:
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
 
-# 1. Konfiguration für DodoLingo
 st.set_page_config(
     page_title="DodoLingo", 
     page_icon=logo_url, 
@@ -15,8 +15,12 @@ st.set_page_config(
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# Logo & Titel Anzeige
-st.image(logo_url, width=120)
+# 2. Logo-Anzeige mit Fehlerprüfung
+try:
+    st.image(logo_url, width=120)
+except:
+    st.warning("⚠️ Logo konnte nicht geladen werden. Prüfe den Dateinamen in GitHub (muss logo.png sein).")
+
 st.title("🇲🇺 DodoLingo")
 
 # Speicher für Ergebnisse & Reset-Funktion
