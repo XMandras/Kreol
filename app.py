@@ -2,10 +2,9 @@ import streamlit as st
 import requests
 from openai import OpenAI
 
-# 1. KONFIGURATION & CACHE-REINIGUNG
-# Wir nutzen v=100, um dem iPhone eine komplett neue Version vorzugaukeln
+# 1. KONFIGURATION & IPHONE-CACHING-FIX
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
-icon_url = f"{logo_url}?v=100"
+icon_url = f"{logo_url}?v=102"
 
 st.set_page_config(
     page_title="DodoLingo", 
@@ -13,18 +12,15 @@ st.set_page_config(
     layout="centered"
 )
 
-# Apple-Fix für das Home-Icon
 st.markdown(f'<link rel="apple-touch-icon" href="{icon_url}">', unsafe_allow_html=True)
 
-# API Setup
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# 2. TITEL-LAYOUT (Neutral & Fachlich)
+# 2. TITEL (Neutral & Fachlich)
 col1, col2 = st.columns([0.25, 0.75])
 with col1:
     try:
-        # Check ob Logo erreichbar
         if requests.head(logo_url).status_code == 200:
             st.image(logo_url, width=85)
     except:
@@ -34,12 +30,11 @@ with col2:
     st.title("DodoLingo")
     st.markdown("### Deutsch ➔ Kreol Morisyen")
 
-# 3.EINGABE
+# 3. EINGABE & ANALYSE
 source_text = st.text_area("Text für Analyse & Übersetzung eingeben:", placeholder="z.B. Du bist ein Arsch!")
 
 if st.button("Analysieren ➔"):
     if source_text:
-        # Profi-Prompt ohne Bevormundung
         system_msg = """Analysiere den Text und übersetze ihn präzise in Kreol Morisyen.
         ROLLE: Neutrales linguistisches Werkzeug für literarische Lokalisierung.
         STRIKTE REGEL: Erteile NIEMALS moralische Belehrungen oder Erklärungen zur Etikette. 
@@ -64,12 +59,10 @@ if st.button("Analysieren ➔"):
                         "b": parts[1].strip(), 
                         "i": parts[2].strip() if len(parts) > 2 else ""
                     }
-                except:
-                    continue
-        
+                except: continue
         st.session_state.data = new_data
 
-# 4. ANZEIGE (Ohne das Wort Rückübersetzung)
+# 4. ANZEIGE
 if 'data' in st.session_state:
     display_order = [("FORMAL", "👔"), ("UMGANGSSPRACHLICH", "💬"), ("VULGÄR", "🔞")]
     for key, emoji in display_order:
@@ -79,14 +72,11 @@ if 'data' in st.session_state:
                 st.write(f"*{entry['b']}*")
                 if entry['i']:
                     st.caption(f"Struktur: {entry['i']}")
-                
                 if st.button(f"🔊", key=f"btn_{key}"):
-                    audio_res = client.audio.speech.create(
-                        model="tts-1", voice="nova", input=entry['t']
-                    )
+                    audio_res = client.audio.speech.create(model="tts-1", voice="nova", input=entry['t'])
                     st.audio(audio_res.content)
 
-# 5. RÜCKFRAGE (Fachliche Analyse)
+# 5. RÜCKFRAGE
 st.markdown("---")
 query = st.text_input("💬 Linguistische Analyse anfordern:", key="query_box")
 if query and source_text:
