@@ -1,8 +1,9 @@
 import streamlit as st
 from openai import OpenAI
+import requests
 
-# 1. Konfiguration (PRÜFE DIESEN LINK!)
-# Er muss exakt so aufgebaut sein:
+# 1. Konfiguration
+# Falls dein Bild in GitHub "Dodologo.png" heißt, muss es hier exakt so stehen:
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
 
 st.set_page_config(
@@ -15,11 +16,17 @@ st.set_page_config(
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# 2. Logo-Anzeige mit Fehlerprüfung
+# 2. Logo-Anzeige mit Live-Check
 try:
-    st.image(logo_url, width=120)
+    # Wir prüfen kurz, ob der Link überhaupt erreichbar ist
+    response = requests.head(logo_url)
+    if response.status_code == 200:
+        st.image(logo_url, width=120)
+    else:
+        st.error(f"⚠️ Bild nicht gefunden (Fehler {response.status_code}). Prüfe den Namen in GitHub.")
 except:
-    st.warning("⚠️ Logo konnte nicht geladen werden. Prüfe den Dateinamen in GitHub (muss logo.png sein).")
+    st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=120)
+    st.caption("Standard-Icon geladen, da Dodologo.png nicht erreichbar war.")
 
 st.title("🇲🇺 DodoLingo")
 
