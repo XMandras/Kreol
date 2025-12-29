@@ -2,12 +2,13 @@ import streamlit as st
 from openai import OpenAI
 import requests
 
-# 1. Konfiguration für das Handy-Icon (Favicon/Touch-Icon)
+# 1. Konfiguration
+# Dieser Link greift jetzt direkt auf deine hochgeladene Datei zu
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
 
 st.set_page_config(
     page_title="DodoLingo", 
-    page_icon=logo_url, # Dies ist die wichtigste Zeile für das Handy-Icon!
+    page_icon=logo_url, 
     layout="centered"
 )
 
@@ -17,13 +18,16 @@ client = OpenAI(api_key=api_key)
 
 # 2. Titel & Logo-Layout
 col1, col2 = st.columns([1, 4])
+
 with col1:
     try:
-        # Prüfen, ob das Bild erreichbar ist
-        if requests.head(logo_url).status_code == 200:
-            st.image(logo_url, width=85)
+        # Prüfung ob das Logo da ist
+        response = requests.get(logo_url, timeout=5)
+        if response.status_code == 200:
+            st.image(logo_url, width=90)
         else:
-            st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=85)
+            # Ersatz-Icon von Flaticon falls GitHub mal hakt
+            st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=80)
     except:
         st.write("## 🦤")
 
