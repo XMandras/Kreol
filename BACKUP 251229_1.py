@@ -1,16 +1,21 @@
 import streamlit as st
 from openai import OpenAI
 
-# 1. Konfiguration
-st.set_page_config(page_title="Kreol Lehrer", page_icon="🇲🇺", layout="centered")
+# 1. Konfiguration: Name der App und das Icon für den Browser/Handy
+st.set_page_config(
+    page_title="DodoLingo", 
+    page_icon="https://cdn-icons-png.flaticon.com/512/2830/2830284.png", 
+    layout="centered"
+)
 
 # Setup
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# Logo & Titel
-st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=80)
-st.title("🇲🇺 Deutsch ➔ Kreol")
+# Logo & Titel in der App
+st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=100)
+st.title("🇲🇺 DodoLingo")
+st.subheader("Deutsch ➔ Kreol Lehrer")
 
 # Speicher für Ergebnisse & Reset-Funktion
 if 'data' not in st.session_state:
