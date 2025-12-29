@@ -1,16 +1,24 @@
 import streamlit as st
 from openai import OpenAI
 import requests
+import base64
 
 # 1. Konfiguration
-# Dieser Link greift jetzt direkt auf deine hochgeladene Datei zu
-# Wir hängen ein "?v=1" an, um den Cache des Handys zu zwingen, das Bild neu zu laden
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
-icon_url = f"{logo_url}?v=1"
+
+# Wir laden das Bild einmal im Hintergrund, damit das iPhone es "fressen" muss
+def get_base64_image(url):
+    try:
+        return base64.b64encode(requests.get(url).content).decode()
+    except:
+        return ""
+
+image_base64 = get_base64_image(logo_url)
+icon_data = f"data:image/png;base64,{image_base64}" if image_base64 else logo_url
 
 st.set_page_config(
     page_title="DodoLingo", 
-    page_icon=icon_url, 
+    page_icon=icon_data, # Hier wird das Bild jetzt direkt als Datenstrom gesendet
     layout="centered"
 )
 
