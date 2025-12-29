@@ -2,7 +2,7 @@ import streamlit as st
 from openai import OpenAI
 
 # Pfad zu deinem Logo in GitHub (angepasst auf dein Repo)
-logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/logo.png"
+logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
 
 # 1. Konfiguration für DodoLingo
 st.set_page_config(
