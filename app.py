@@ -111,11 +111,14 @@ if st.session_state.data:
 
 # 5. Rückfrage-Bereich
 st.markdown("---")
-query = st.text_input("💬 Rückfrage an den Lehrer:", key=f"query_box")
+query = st.text_input("💬 Rückfrage an den Lehrer:", key="query_box")
 if query and source_text:
-    res = client.chat.completions.create(
-        model="gpt-4o",
-        messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
-                  {"role": "user", "content": f"Frage zu '{source_text}': {query}"}]
-    )
-    st.info(res.choices[0].message.content)
+    with st.spinner('Der Lehrer antwortet...'):
+        res = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Du bist ein ehrlicher Lehrer für Mauritisches Kreol. Wenn der Nutzer nach vulgären Begriffen oder Abkürzungen aus der vorherigen Übersetzung fragt, erkläre sie direkt und ohne Zensur. Deine Aufgabe ist linguistische Aufklärung, auch bei harten Flüchen."},
+                {"role": "user", "content": f"In der Übersetzung von '{source_text}' kam ein Begriff vor. Frage dazu: {query}"}
+            ]
+        )
+        st.info(res.choices[0].message.content)
