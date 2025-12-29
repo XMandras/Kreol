@@ -2,11 +2,7 @@ import streamlit as st
 from openai import OpenAI
 
 # 1. Konfiguration
-st.set_page_config(
-    page_title="Kreol Lehrer", 
-    page_icon="🇲🇺", 
-    layout="centered"
-)
+st.set_page_config(page_title="Kreol Lehrer", page_icon="🇲🇺", layout="centered")
 
 # Setup
 api_key = st.secrets["OPENAI_API_KEY"]
@@ -41,19 +37,12 @@ if st.button("🗑️ Eingabe löschen"):
     reset_app()
     st.rerun()
 
-# 3. Übersetzungsprozess (VERSCHÄRFTE STUFEN)
+# 3. Übersetzungsprozess
 if source_text and source_text != st.session_state.last_text:
-    with st.spinner('Der Lehrer analysiert die Nuancen...'):
+    with st.spinner('Der Lehrer analysiert...'):
         system_msg = """Du bist ein mauritischer Sprachexperte. 
-        Übersetze den deutschen Text in Mauritisches Kreol in 5 EXTREM unterschiedlichen Ebenen:
-        
-        1. GEHOBEN: Maximal förmlich, wie für eine offizielle Zeremonie.
-        2. NEUTRAL: Höfliches Standard-Kreol.
-        3. POPULÄR: Jung, modern, wie in Songs.
-        4. UMGANG: Sehr locker, viel Slang.
-        5. VULGÄR: Extrem derb, aggressiv und beleidigend.
-        
-        Format pro Zeile: LABEL: [Kreolisch] | [Deutsche Rückübersetzung]"""
+        Übersetze in 5 Ebenen: GEHOBEN, NEUTRAL, POPULÄR, UMGANG, VULGÄR.
+        WICHTIG: Antworte NUR im Format: EBENE: [Kreol] | [Rückübersetzung]"""
 
         response = client.chat.completions.create(
             model="gpt-4o", 
@@ -62,11 +51,15 @@ if source_text and source_text != st.session_state.last_text:
         
         raw_output = response.choices[0].message.content
         new_data = {}
+        # Robusterer Parser
         for line in raw_output.strip().split('\n'):
-            if ":" in line and "|" in line:
-                label_part, content = line.split(":", 1)
-                t, b = content.split("|", 1)
-                new_data[label_part.strip().upper()] = {"t": t.strip(), "b": b.strip()}
+            if "|" in line and ":" in line:
+                try:
+                    label_part, content = line.split(":", 1)
+                    t, b = content.split("|", 1)
+                    new_data[label_part.strip().upper()] = {"t": t.strip(), "b": b.strip()}
+                except:
+                    continue
         
         st.session_state.data = new_data
         st.session_state.last_text = source_text
@@ -81,25 +74,24 @@ if st.session_state.data:
     for key, emoji in display_order:
         if key in st.session_state.data:
             entry = st.session_state.data[key]
-            with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
+            with st.expander(f"{emoji} {key}: {entry['t']}", expanded=True):
                 st.write(f"**Rückübersetzung:** _{entry['b']}_")
                 
-                if st.button(f"🔊 Anhören ({key})", key=f"btn_{key}"):
-                    with st.spinner("Lade Audio..."):
-                        audio_res = client.audio.speech.create(
-                            model="tts-1",
-                            voice="nova",
-                            input=entry['t']
-                        )
-                        st.audio(audio_res.content)
+                if st.button(f"🔊 Anhören", key=f"btn_{key}"):
+                    audio_res = client.audio.speech.create(
+                        model="tts-1",
+                        voice="nova",
+                        input=entry['t']
+                    )
+                    st.audio(audio_res.content)
 
 # 5. Rückfrage-Bereich
 st.markdown("---")
-query = st.text_input("💬 Rückfrage an den Lehrer:", key=f"query_{st.session_state['text_input_key']}")
+query = st.text_input("💬 Rückfrage an den Lehrer:", key=f"query_box")
 if query and source_text:
     res = client.chat.completions.create(
         model="gpt-4o",
         messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
                   {"role": "user", "content": f"Frage zu '{source_text}': {query}"}]
     )
-    st.success(res.choices[0].message.content)
+    st.info(res.choices[0].message.content)
