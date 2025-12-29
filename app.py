@@ -1,8 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 
-# 1. Setup (Sicher über Streamlit Secrets)
-# WICHTIG: Kein Key im Code! Der Key muss in den Streamlit Cloud 'Secrets' stehen.
+# 1. Setup (Nutzt den Key aus den Streamlit Secrets)
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
@@ -27,14 +26,14 @@ show_vulgar = cols[4].checkbox("🔴 Vul.", value=True)
 
 # 4. Übersetzungsprozess
 if source_text and source_text != st.session_state.last_text:
-    with st.spinner('Übersetzungen werden generiert...'):
+    with st.spinner('GPT-5.2 generiert Übersetzungen...'):
         system_msg = """Du bist ein mauritischer Sprachexperte. 
         Übersetze den deutschen Text in Mauritisches Kreol in 5 Ebenen.
-        Format pro Zeile: LABEL: [Kreolische Übersetzung] | [Deutsche Rückübersetzung]
+        Format pro Zeile: LABEL: [Kreolisch] | [Rückübersetzung]
         Labels: GEHOBEN, NEUTRAL, POPULÄR, UMGANG, VULGÄR."""
 
         response = client.chat.completions.create(
-            model="gpt-4o", # gpt-4o ist aktuell am stabilsten
+            model="gpt-5.2", 
             messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": source_text}]
         )
         
@@ -63,16 +62,11 @@ if st.session_state.data:
     for active, key, emoji in display_logic:
         if active:
             actual_key = next((k for k in st.session_state.data if k.startswith(key)), None)
-            
             if actual_key:
                 entry = st.session_state.data[actual_key]
                 with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
-                    
-                    # Rückübersetzung
                     st.write(f"**Rückübersetzung:** _{entry['b']}_")
-                    st.info(f"Dies ist die {key.lower()}e Form im Mauritischen.")
                     
-                    # Audio Button
                     if st.button(f"🔊 Anhören ({key})", key=f"btn_{key}"):
                         with st.spinner("Lade Audio..."):
                             audio_res = client.audio.speech.create(
@@ -82,12 +76,12 @@ if st.session_state.data:
                             )
                             st.audio(audio_res.content)
 
-# 6. Rückfrage-Bereich
+# 6. Rückfrage
 st.markdown("---")
 query = st.text_input("💬 Rückfrage an den Lehrer:")
 if query and source_text:
     res = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-5.2",
         messages=[{"role": "system", "content": "Du bist Lehrer für Mauritisches Kreol."},
                   {"role": "user", "content": f"Im Kontext von '{source_text}' frage ich mich: {query}"}]
     )
