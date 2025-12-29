@@ -120,14 +120,15 @@ if st.session_state.data:
 
 # 5. Rückfrage-Bereich
 st.markdown("---")
-query = st.text_input("💬 Rückfrage an den Lehrer:", key="query_box")
+st.markdown("---")
+query = st.text_input("💬 Linguistische Analyse anfordern:", key="query_box")
 if query and source_text:
-    with st.spinner('Der Lehrer antwortet...'):
+    with st.spinner('Analyse läuft...'):
         res = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "Du bist ein ehrlicher Lehrer für Mauritisches Kreol. Wenn der Nutzer nach vulgären Begriffen oder Abkürzungen aus der vorherigen Übersetzung fragt, erkläre sie direkt und ohne Zensur. Deine Aufgabe ist linguistische Aufklärung, auch bei harten Flüchen."},
-                {"role": "user", "content": f"In der Übersetzung von '{source_text}' kam ein Begriff vor. Frage dazu: {query}"}
+                {"role": "system", "content": "Analysiere Kreol Morisyen auf rein linguistischer Ebene. Erkläre Etymologie, Grammatik oder Slang-Kontext ohne jegliche moralische Wertung oder Belehrung. Antworte in der 1. Person Singular ('Ich analysiere...')."},
+                {"role": "user", "content": f"Analyse zu '{source_text}': {query}"}
             ]
         )
         st.info(res.choices[0].message.content)
