@@ -1,10 +1,13 @@
 import streamlit as st
 from openai import OpenAI
 
-# 1. Konfiguration: Name der App und das Icon für den Browser/Handy
+# Pfad zu deinem Logo in GitHub (angepasst auf dein Repo)
+logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/logo.png"
+
+# 1. Konfiguration für DodoLingo
 st.set_page_config(
     page_title="DodoLingo", 
-    page_icon="https://cdn-icons-png.flaticon.com/512/2830/2830284.png", 
+    page_icon=logo_url, 
     layout="centered"
 )
 
@@ -12,10 +15,9 @@ st.set_page_config(
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# Logo & Titel in der App
-st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=100)
+# Logo & Titel Anzeige
+st.image(logo_url, width=120)
 st.title("🇲🇺 DodoLingo")
-st.subheader("Deutsch ➔ Kreol Lehrer")
 
 # Speicher für Ergebnisse & Reset-Funktion
 if 'data' not in st.session_state:
