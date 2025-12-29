@@ -16,19 +16,25 @@ st.set_page_config(
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# 2. Logo-Anzeige mit Live-Check
-try:
-    # Wir prüfen kurz, ob der Link überhaupt erreichbar ist
-    response = requests.head(logo_url)
-    if response.status_code == 200:
-        st.image(logo_url, width=120)
-    else:
-        st.error(f"⚠️ Bild nicht gefunden (Fehler {response.status_code}). Prüfe den Namen in GitHub.")
-except:
-    st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=120)
-    st.caption("Standard-Icon geladen, da Dodologo.png nicht erreichbar war.")
+# 2. Logo-Anzeige & Titel-Layout
+col1, col2 = st.columns([1, 4])
 
-st.title("🇲🇺 DodoLingo")
+with col1:
+    # Hier wird PRIORISIERT dein eigenes Logo geladen
+    try:
+        if requests.head(logo_url).status_code == 200:
+            st.image(logo_url, width=85) # Dein Dodologo.png
+        else:
+            # Das ist nur der Ersatz, falls dein Bild fehlt
+            st.image("https://cdn-icons-png.flaticon.com/512/2830/2830284.png", width=85)
+    except:
+        # Das ist der absolute Notfall-Plan (Emoji)
+        st.write("## 🦤") 
+
+with col2:
+    # Hier steht jetzt nur noch der Name ohne Flaggen-Emoji
+    st.title("DodoLingo")
+    st.markdown("*Deutsch ➔ Kreol Lehrer*")
 
 # Speicher für Ergebnisse & Reset-Funktion
 if 'data' not in st.session_state:
