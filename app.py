@@ -4,7 +4,7 @@ from openai import OpenAI
 
 # 1. KONFIGURATION & IPHONE-CACHING-FIX
 logo_url = "https://raw.githubusercontent.com/XMandras/Kreol/main/Dodologo.png"
-icon_url = f"{logo_url}?v=102"
+icon_url = f"{logo_url}?v=105"
 
 st.set_page_config(
     page_title="DodoLingo", 
@@ -12,7 +12,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# Apple-Icon Fix (Direkt am Anfang)
+# Apple-Icon Fix (Zwingt das iPhone zum Dodo)
 st.markdown(f'<link rel="apple-touch-icon" href="{icon_url}">', unsafe_allow_html=True)
 
 # API Key
@@ -24,7 +24,6 @@ col1, col2 = st.columns([0.25, 0.75])
 
 with col1:
     st.image(logo_url, width=85)
-    # Entfernt rotes Logo und Toolbar
     st.markdown(
         """
         <style>
@@ -74,9 +73,15 @@ if st.button("Analysieren ➔"):
                 except: continue
         st.session_state.data = new_data
 
-# 4. ANZEIGE
+# 4. ANZEIGE (Wieder mit allen 5 Ebenen)
 if 'data' in st.session_state:
-    display_order = [("FORMAL", "👔"), ("UMGANGSSPRACHLICH", "💬"), ("VULGÄR", "🔞")]
+    display_order = [
+        ("FORMAL", "👔"), 
+        ("NEUTRAL", "⚖️"), 
+        ("UMGANGSSPRACHLICH", "💬"), 
+        ("SLANG", "🛹"), 
+        ("VULGÄR", "🔞")
+    ]
     for key, emoji in display_order:
         if key in st.session_state.data:
             entry = st.session_state.data[key]
