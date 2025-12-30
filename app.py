@@ -35,6 +35,11 @@ with col1:
         unsafe_allow_html=True
     )
 
+st.markdown(
+    f'<link rel="apple-touch-icon" href="{logo_url}">',
+    unsafe_allow_html=True
+)
+
 with col2:
     st.title("DodoLingo")
     
