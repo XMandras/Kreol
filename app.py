@@ -20,27 +20,24 @@ client = OpenAI(api_key=api_key)
 # 2. TITEL (Neutral & Fachlich)
 col1, col2 = st.columns([0.25, 0.75])
 with col1:
-    try:
-        if requests.head(logo_url).status_code == 200:
-            st.image(logo_url, width=85)
+    st.image(logo_url, width=85)
 
-st.markdown(
-    """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .stAppDeployButton {display:none;}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-    
-    except:
-        st.write("## 🦤")
+    st.markdown(
+        """
+        <style>
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stAppDeployButton {display:none;}
+        [data-testid="stStatusWidget"] {visibility: hidden;}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 with col2:
     st.title("DodoLingo")
+    
     st.markdown("### Deutsch ➔ Kreol Morisyen")
 
 # 3. EINGABE & ANALYSE
