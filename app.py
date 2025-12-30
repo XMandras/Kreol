@@ -46,7 +46,7 @@ with col2:
     st.markdown("### Deutsch ➔ Kreol Morisyen")
 
 # 3. EINGABE & ANALYSE
-source_text = st.text_area("Text für Analyse & Übersetzung eingeben:", placeholder="z.B. Du bist ein Arsch!")
+source_text = st.text_area("Text für Analyse & Übersetzung eingeben:")
 
 if st.button("Analysieren ➔"):
     if source_text:
