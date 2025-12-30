@@ -23,7 +23,7 @@ with col2:
 # 3. Eingabebereich
 source_text = st.text_area("Text für Analyse & Übersetzung eingeben:", height=150)
 
-if st.button("Übersetzen ➔"):
+if st.button("Analysieren ➔"):
     if source_text:
         with st.spinner('Wird übersetzt...'):
             try:
