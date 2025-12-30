@@ -23,6 +23,19 @@ with col1:
     try:
         if requests.head(logo_url).status_code == 200:
             st.image(logo_url, width=85)
+
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stAppDeployButton {display:none;}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+    
     except:
         st.write("## 🦤")
 
