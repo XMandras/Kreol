@@ -12,16 +12,19 @@ st.set_page_config(
     layout="centered"
 )
 
+# Apple-Icon Fix (Direkt am Anfang)
 st.markdown(f'<link rel="apple-touch-icon" href="{icon_url}">', unsafe_allow_html=True)
 
+# API Key
 api_key = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=api_key)
 
-# 2. TITEL (Neutral & Fachlich)
+# 2. TITEL & BRANDING-ENTFERNUNG
 col1, col2 = st.columns([0.25, 0.75])
+
 with col1:
     st.image(logo_url, width=85)
-
+    # Entfernt rotes Logo und Toolbar
     st.markdown(
         """
         <style>
@@ -35,14 +38,8 @@ with col1:
         unsafe_allow_html=True
     )
 
-st.markdown(
-    f'<link rel="apple-touch-icon" href="{logo_url}">',
-    unsafe_allow_html=True
-)
-
 with col2:
     st.title("DodoLingo")
-    
     st.markdown("### Deutsch ➔ Kreol Morisyen")
 
 # 3. EINGABE & ANALYSE
@@ -104,4 +101,3 @@ if query and source_text:
             ]
         )
         st.info(res.choices[0].message.content)
-
