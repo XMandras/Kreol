@@ -27,16 +27,20 @@ if st.button("Übersetzen in 5 Sprachebenen"):
     if source_text:
         with st.spinner('Wird übersetzt...'):
             try:
-                system_msg = """Übersetze exakt in Kreol Morisyen. 
-                WICHTIG FÜR DIE RÜCKÜBERSETZUNG: Erstelle eine dezidierte, wörtliche Rückübersetzung ins Deutsche. 
-                Wenn der Ausdruck idiomatisch ist, füge in Klammern eine nähere Erklärung hinzu.
+                # System-Prompt mit Fokus auf wörtliche Rückübersetzung und linguistische Feinheiten
+                system_msg = """Du bist ein Experte für Kreol Morisyen. Übersetze den Quelltext in 5 Ebenen.
                 
-                Antworte NUR in diesem Format:
-                FORMAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
-                NEUTRAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
-                UMGANGSSPRACHLICH: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
-                SLANG: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
-                VULGÄR: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]"""
+                ANWEISUNGEN FÜR DIE RÜCKÜBERSETZUNG:
+                1. Gib eine dezidierte, wörtliche Rückübersetzung ins Deutsche an.
+                2. Erwähne IMMER, wenn und warum eine ungewöhnliche Satzkonstruktion oder ein bestimmtes Wort zur semantischen Verformung oder Verstärkung benutzt wird (z.B. Reduplikation, spezielle Partikel).
+                3. Erkläre idiomatische Wendungen detailliert.
+                
+                FORMAT (Antworte NUR so):
+                FORMAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung der Konstruktion/Verstärkung] | [Zusatz-Info]
+                NEUTRAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung der Konstruktion/Verstärkung] | [Zusatz-Info]
+                UMGANGSSPRACHLICH: [Kreol] | [Wörtliche Rückübersetzung & Erklärung der Konstruktion/Verstärkung] | [Zusatz-Info]
+                SLANG: [Kreol] | [Wörtliche Rückübersetzung & Erklärung der Konstruktion/Verstärkung] | [Zusatz-Info]
+                VULGÄR: [Kreol] | [Wörtliche Rückübersetzung & Erklärung der Konstruktion/Verstärkung] | [Zusatz-Info]"""
 
                 response = client.chat.completions.create(
                     model="gpt-4o",
@@ -62,7 +66,7 @@ if st.button("Übersetzen in 5 Sprachebenen"):
             except Exception as e:
                 st.error(f"Fehler: {e}")
 
-# 4. Anzeige der 5 Ebenen (Eingeklappt durch expanded=False)
+# 4. Anzeige der 5 Ebenen (Eingeklappt)
 if 'data' in st.session_state:
     display_order = [
         ("FORMAL", "👔"), 
@@ -74,11 +78,12 @@ if 'data' in st.session_state:
     for key, emoji in display_order:
         if key in st.session_state.data:
             entry = st.session_state.data[key]
-            # expanded=False sorgt dafür, dass es erst beim Klicken aufklappt
+            # Expander ist standardmäßig zu (expanded=False)
             with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
-                st.markdown(f"**Wörtliche Rückübersetzung:**\n{entry['b']}")
+                # Direkte Anzeige der Rückübersetzung/Analyse ohne einleitenden Text
+                st.write(entry['b'])
                 if entry['i']:
-                    st.caption(f"Zusatz-Info: {entry['i']}")
+                    st.caption(f"Info: {entry['i']}")
                 if st.button(f"🔊 Audio abspielen", key=f"audio_{key}"):
                     audio_res = client.audio.speech.create(model="tts-1", voice="nova", input=entry['t'])
                     st.audio(audio_res.content)
