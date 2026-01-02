@@ -21,18 +21,22 @@ with col2:
     st.markdown("### Deutsch ➔ Kreol Morisyen")
 
 # 3. Eingabebereich
-source_text = st.text_area("Text für Analyse & Übersetzung eingeben:", height=150)
+source_text = st.text_area("Text für Übersetzung eingeben:", height=150)
 
-if st.button("Analysieren ➔"):
+if st.button("Übersetzen in 5 Sprachebenen"):
     if source_text:
         with st.spinner('Wird übersetzt...'):
             try:
-                system_msg = """Übersetze exakt in Kreol Morisyen. Antworte NUR in diesem Format:
-                FORMAL: [Kreol] | [Bedeutung] | [Info]
-                NEUTRAL: [Kreol] | [Bedeutung] | [Info]
-                UMGANGSSPRACHLICH: [Kreol] | [Bedeutung] | [Info]
-                SLANG: [Kreol] | [Bedeutung] | [Info]
-                VULGÄR: [Kreol] | [Bedeutung] | [Info]"""
+                system_msg = """Übersetze exakt in Kreol Morisyen. 
+                WICHTIG FÜR DIE RÜCKÜBERSETZUNG: Erstelle eine dezidierte, wörtliche Rückübersetzung ins Deutsche. 
+                Wenn der Ausdruck idiomatisch ist, füge in Klammern eine nähere Erklärung hinzu.
+                
+                Antworte NUR in diesem Format:
+                FORMAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
+                NEUTRAL: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
+                UMGANGSSPRACHLICH: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
+                SLANG: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]
+                VULGÄR: [Kreol] | [Wörtliche Rückübersetzung & Erklärung] | [Zusatz-Info]"""
 
                 response = client.chat.completions.create(
                     model="gpt-4o",
@@ -58,7 +62,7 @@ if st.button("Analysieren ➔"):
             except Exception as e:
                 st.error(f"Fehler: {e}")
 
-# 4. Anzeige der 5 Ebenen
+# 4. Anzeige der 5 Ebenen (Eingeklappt durch expanded=False)
 if 'data' in st.session_state:
     display_order = [
         ("FORMAL", "👔"), 
@@ -70,11 +74,12 @@ if 'data' in st.session_state:
     for key, emoji in display_order:
         if key in st.session_state.data:
             entry = st.session_state.data[key]
-            with st.expander(f"{emoji} {key}: {entry['t']}", expanded=True):
-                st.write(f"*{entry['b']}*")
+            # expanded=False sorgt dafür, dass es erst beim Klicken aufklappt
+            with st.expander(f"{emoji} {key}: {entry['t']}", expanded=False):
+                st.markdown(f"**Wörtliche Rückübersetzung:**\n{entry['b']}")
                 if entry['i']:
-                    st.caption(f"Info: {entry['i']}")
-                if st.button(f"🔊", key=f"audio_{key}"):
+                    st.caption(f"Zusatz-Info: {entry['i']}")
+                if st.button(f"🔊 Audio abspielen", key=f"audio_{key}"):
                     audio_res = client.audio.speech.create(model="tts-1", voice="nova", input=entry['t'])
                     st.audio(audio_res.content)
 
